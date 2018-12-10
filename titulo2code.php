@@ -1,15 +1,16 @@
 <pre>
 <?php
 
+$jsonString = file_get_contents('codigos.json');
+$data = json_decode($jsonString, true);
 
-
-$cadenas = array('Gran Apertura De Centro', 'Gran Apertura HOy','Gran APErtura','Gran Abertura HoY','Gran Apertura Hoy Martes','Gran Apertura hoy MArtes', 'Gran Abertura hoy MArtes');
+$cadenas = array(' Gran  Apertura De Centro', ' Gran  Abertura De Centro', 'Gran Apertura HOy','Gran APErtura','Gran Abertura HoY','Gran Apertura Hoy Martes','Gran Apertura hoy MArtes', 'Gran Abertura hoy MArtes');
 
 foreach ($cadenas as &$cadena) {
 // $cadena = 'Gran Apertura De Centro';
-
+$cadena_limpia = preg_replace('/\s\s+/', ' ',strtoupper(trim($cadena)));
 // convertir la expresion en mayusculas y cora la variable en espacios
-$valore = preg_split("/ /", strtoupper($cadena));
+$valore = preg_split("/ /",  $cadena_limpia);
 $opciones = array();
 $n = count($valore);
 
@@ -39,4 +40,21 @@ $opciones[$w] .= $opciones[0][count($valore)-1];
 echo $cadena."\n\n";
 // print_r($opciones);
 print_r(array_unique($opciones));
+// en base el XML elejir una y guardarla
+
+echo isset($data[$cadena_limpia]);
+// si en la base de datos no existe el titulo
+if (!(isset($data[$cadena_limpia]) == 1)) {
+	$i = 0;
+	// comprobar que el codigo no exista
+	foreach ($opciones as &$opcion) {
+		if (! in_array($opcion, $data)) { 
+			$data[$cadena_limpia] = $opcion;
+			break;
+		}
+	}
+}
+$newJsonString = json_encode($data);
+file_put_contents('codigos.json', $newJsonString);
+
 }
